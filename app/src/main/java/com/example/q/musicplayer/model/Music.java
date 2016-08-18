@@ -5,15 +5,23 @@ package com.example.q.musicplayer.model;
  */
 public class Music {
 
-    private boolean isMusic;
+    private int isMusic;
     private long id;
     private long size;
+    private long duration;
     private long albumId;
     private String url;
     private String album;
-    private String duration;
     private String name;
     private String artist;
+
+    public int getIsMusic() {
+        return isMusic;
+    }
+
+    public void setIsMusic(int isMusic) {
+        this.isMusic = isMusic;
+    }
 
     public long getId() {
         return id;
@@ -29,6 +37,14 @@ public class Music {
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public long getAlbumId() {
@@ -53,14 +69,6 @@ public class Music {
 
     public void setAlbum(String album) {
         this.album = album;
-    }
-
-    public String getDuration() {
-        return duration;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
     }
 
     public String getName() {

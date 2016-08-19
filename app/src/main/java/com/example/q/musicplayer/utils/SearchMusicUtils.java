@@ -2,6 +2,8 @@ package com.example.q.musicplayer.utils;
 
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.example.q.musicplayer.Constant;
 import com.example.q.musicplayer.model.SearchMusic;
@@ -22,6 +24,7 @@ import java.util.concurrent.Executors;
 public class SearchMusicUtils {
     private static final int SIZE = 20;//查询前20条
     private static final String URL = Constant.BAIDU_URL + Constant.BAIDU_SEARCH;
+    private static final String TAG = "SearchMusic";
     private static SearchMusicUtils searchMusicUtils;
     private ExecutorService mThreadPool;
     private OnSearchResultListener searchResultListener;
@@ -71,11 +74,13 @@ public class SearchMusicUtils {
                     case Constant.SUCCESS:
                         if (searchResultListener!=null){
                             searchResultListener.onSearchResult((ArrayList<SearchMusic>) msg.obj);
+                            Log.e(TAG,"成功了");
                         }
                         break;
                     case Constant.FAILED:
                         if (searchResultListener!=null){
                             searchResultListener.onSearchResult(null);
+                            Log.e(TAG,"失败了");
                         }
                         break;
                 }
@@ -84,12 +89,17 @@ public class SearchMusicUtils {
         mThreadPool.execute(new Runnable() {
             @Override
             public void run() {
+                Log.e(TAG,"开始获得连接");
                 ArrayList<SearchMusic> results=getMusicList(key,page);
                 if (results==null){
                     handler.sendEmptyMessage(Constant.FAILED);
                     return;
                 }
-                handler.obtainMessage(Constant.SUCCESS,results).sendToTarget();//简易方式
+                Message message=Message.obtain();
+                message.obj=results;
+                message.what=Constant.SUCCESS;
+                handler.sendMessage(message);
+               // handler.obtainMessage(Constant.SUCCESS,results).sendToTarget();//简易方式
             }
         });
     }
@@ -100,16 +110,22 @@ public class SearchMusicUtils {
         ArrayList<SearchMusic> searchMusics=new ArrayList<>();
         try {
             Document doc=Jsoup.connect(URL).data("key",key,"start",start,"size", String.valueOf(SIZE)).userAgent(Constant.USER_AGENT).timeout(6000).get();
+            //抽出所有歌
             Elements urls=doc.select("div.song-item.clearfix");
+            Log.e(TAG,"已经获得连接");
+            TAG2:
             for (Element song: urls){
                 songInfos=song.getElementsByTag("a");
                 SearchMusic searchMusic=new SearchMusic();
                 for (Element info:songInfos){
                     //收费则跳过
-                    if (!info.attr("href").startsWith("http://y.baidu.com/song/")){
-                        break;
+                    if (info.attr("href").startsWith("http://y.baidu.com/song/")){
+                        continue TAG2;
                     }
-                    //歌曲链接
+                    if (info.attr("href").equals("#")&& !TextUtils.isEmpty(info.attr("data-songdata"))){
+                        continue TAG2;
+                    }
+                    //歌曲链接和名字
                     if (info.attr("href").startsWith("/song")){
                         searchMusic.setMusicName(info.text());
                         searchMusic.setUrl(info.attr("href"));
@@ -121,8 +137,10 @@ public class SearchMusicUtils {
                     if (info.attr("href").startsWith("album")){
                         searchMusic.setAlbum(info.text().replace("<<|>>",""));
                     }
-                    searchMusics.add(searchMusic);
+//                    Log.e(TAG,"每一个SearchMusicName："+searchMusic.getMusicName());
+//                    Log.e(TAG,"每一条Element:"+info.html());
                 }
+                searchMusics.add(searchMusic);
             }
             return searchMusics;
         } catch (IOException e) {

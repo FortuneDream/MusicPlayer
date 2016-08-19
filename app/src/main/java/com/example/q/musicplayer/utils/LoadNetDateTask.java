@@ -3,7 +3,9 @@ package com.example.q.musicplayer.utils;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.example.q.musicplayer.Constant;
 import com.example.q.musicplayer.adapter.NetMusicAdapter;
@@ -22,15 +24,17 @@ import java.util.ArrayList;
  * Created by YQ on 2016/8/18.
  */
 //加载网络音乐的异步任务
-public class LoadNetDateTask extends AsyncTask<String,Integer,Integer>{
+public class LoadNetDateTask extends AsyncTask<String,Integer,ArrayList<SearchMusic>>{
     private ArrayList<SearchMusic> searchMusics=new ArrayList<>();
     private Context context;
     private NetMusicAdapter adaper;
     private ListView netMusicLv;
+    private ProgressBar progressBar;
 
-    public LoadNetDateTask(Context context, ListView netMusicLv) {
+    public LoadNetDateTask(Context context, ListView netMusicLv, ProgressBar progressBar) {
         this.context=context;
         this.netMusicLv=netMusicLv;
+        this.progressBar=progressBar;
     }
 
     //异步任务的准备工作
@@ -38,10 +42,11 @@ public class LoadNetDateTask extends AsyncTask<String,Integer,Integer>{
     protected void onPreExecute() {
         super.onPreExecute();
         searchMusics.clear();
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
-    protected Integer doInBackground(String... strings) {
+    protected ArrayList<SearchMusic> doInBackground(String... strings) {
         //取得地址
         String url=strings[0];
         try {
@@ -65,18 +70,20 @@ public class LoadNetDateTask extends AsyncTask<String,Integer,Integer>{
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return -1;
+            return null;
         }
-        return 0;
+        return searchMusics;
     }
 
     //后台任务完成
+
     @Override
-    protected void onPostExecute(Integer integer) {
-        super.onPostExecute(integer);
-        if (integer==0){
+    protected void onPostExecute(ArrayList<SearchMusic> list) {
+        super.onPostExecute(list);
+        if (list!=null){
             adaper=new NetMusicAdapter(context,searchMusics);
             netMusicLv.setAdapter(adaper);
         }
+        progressBar.setVisibility(View.INVISIBLE);
     }
 }

@@ -1,10 +1,11 @@
-package com.example.q.musicplayer;
+package com.example.q.musicplayer.utils;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ListView;
 
+import com.example.q.musicplayer.Constant;
 import com.example.q.musicplayer.adapter.NetMusicAdapter;
 import com.example.q.musicplayer.home.NetMusicFragment;
 import com.example.q.musicplayer.model.SearchMusic;

@@ -5,7 +5,6 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.example.q.musicplayer.Constant;
 import com.example.q.musicplayer.model.SearchMusic;
 
 import org.jsoup.Jsoup;
@@ -95,11 +94,7 @@ public class SearchMusicUtils {
                     handler.sendEmptyMessage(Constant.FAILED);
                     return;
                 }
-                Message message=Message.obtain();
-                message.obj=results;
-                message.what=Constant.SUCCESS;
-                handler.sendMessage(message);
-               // handler.obtainMessage(Constant.SUCCESS,results).sendToTarget();//简易方式
+               handler.obtainMessage(Constant.SUCCESS,results).sendToTarget();//简易方式
             }
         });
     }
@@ -137,8 +132,6 @@ public class SearchMusicUtils {
                     if (info.attr("href").startsWith("album")){
                         searchMusic.setAlbum(info.text().replace("<<|>>",""));
                     }
-//                    Log.e(TAG,"每一个SearchMusicName："+searchMusic.getMusicName());
-//                    Log.e(TAG,"每一条Element:"+info.html());
                 }
                 searchMusics.add(searchMusic);
             }

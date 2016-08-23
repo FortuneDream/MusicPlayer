@@ -4,17 +4,12 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.example.q.musicplayer.Constant;
-import com.example.q.musicplayer.adapter.NetMusicAdapter;
-import com.example.q.musicplayer.home.NetMusicFragment;
 import com.example.q.musicplayer.model.SearchMusic;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -27,16 +22,19 @@ import java.util.ArrayList;
 public class LoadNetDateTask extends AsyncTask<String,Integer,ArrayList<SearchMusic>>{
     private ArrayList<SearchMusic> searchMusics=new ArrayList<>();
     private Context context;
-    private NetMusicAdapter adaper;
-    private ListView netMusicLv;
     private ProgressBar progressBar;
-
-    public LoadNetDateTask(Context context, ListView netMusicLv, ProgressBar progressBar) {
+    private OnSuccess onSuccess;
+    public interface OnSuccess{
+        void onResult(ArrayList<SearchMusic> searchMusics);
+    }
+    public LoadNetDateTask(Context context,  ProgressBar progressBar) {
         this.context=context;
-        this.netMusicLv=netMusicLv;
         this.progressBar=progressBar;
     }
 
+    public void setOnSuccess(OnSuccess onSuccess){
+        this.onSuccess=onSuccess;
+    }
     //异步任务的准备工作
     @Override
     protected void onPreExecute() {
@@ -80,9 +78,8 @@ public class LoadNetDateTask extends AsyncTask<String,Integer,ArrayList<SearchMu
     @Override
     protected void onPostExecute(ArrayList<SearchMusic> list) {
         super.onPostExecute(list);
-        if (list!=null){
-            adaper=new NetMusicAdapter(context,searchMusics);
-            netMusicLv.setAdapter(adaper);
+        if (onSuccess!=null){
+            onSuccess.onResult(searchMusics);
         }
         progressBar.setVisibility(View.INVISIBLE);
     }

@@ -1,4 +1,4 @@
-package com.example.q.musicplayer;
+package com.example.q.musicplayer.utils;
 
 /**
  * Created by YQ on 2016/8/18.
